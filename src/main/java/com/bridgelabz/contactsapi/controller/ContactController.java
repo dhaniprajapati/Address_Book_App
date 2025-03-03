@@ -4,6 +4,7 @@ import com.bridgelabz.contactsapi.dto.ContactDTO;
 import com.bridgelabz.contactsapi.entity.ContactEntity;
 import com.bridgelabz.contactsapi.service.ContactService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +15,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/contacts")
 public class ContactController {
-    private final ContactService contactService;
-
-    public ContactController(ContactService contactService) {
-        this.contactService = contactService;
-    }
-
+    @Autowired
+    public ContactService contactService;
     // Get all contacts
     @GetMapping
     public ResponseEntity<List<ContactEntity>> getAllContacts() {
