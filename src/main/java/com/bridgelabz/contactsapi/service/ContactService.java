@@ -5,10 +5,10 @@ import com.bridgelabz.contactsapi.entity.ContactEntity;
 import com.bridgelabz.contactsapi.repository.ContactRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
+//UC_2_Introducing service layer
 @Slf4j
 @Service
 public class ContactService {
