@@ -1,72 +1,77 @@
 package com.bridgelabz.contactsapi.controller;
 
-
+import com.bridgelabz.contactsapi.dto.ContactDTO;
 import com.bridgelabz.contactsapi.entity.ContactEntity;
 import com.bridgelabz.contactsapi.service.ContactService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/contacts")
 public class ContactController {
-    private static final Logger logger = LoggerFactory.getLogger(ContactController.class);
+    private final ContactService contactService;
 
-    @Autowired
-    private ContactService contactService;
+    public ContactController(ContactService contactService) {
+        this.contactService = contactService;
+    }
 
+    // Get all contacts
     @GetMapping
     public ResponseEntity<List<ContactEntity>> getAllContacts() {
-        logger.info("Received request to get all contacts");
+        log.info("Received request to get all contacts");
         List<ContactEntity> contacts = contactService.getAllContacts();
         return ResponseEntity.ok(contacts);
     }
-
+    // Get contact by ID
     @GetMapping("/get/{id}")
     public ResponseEntity<ContactEntity> getContactById(@PathVariable Long id) {
-        logger.info("Received request to get contact by ID: {}", id);
+        log.info("Received request to get contact by ID: {}", id);
         Optional<ContactEntity> contact = contactService.getContactById(id);
         if (contact.isPresent()) {
-            logger.info("Contact found: {}", contact.get());
             return ResponseEntity.ok(contact.get());
         } else {
-            logger.warn("Contact with ID: {} not found", id);
+            log.warn("Contact with ID: {} not found", id);
             return ResponseEntity.notFound().build();
         }
     }
-
+    // Add a new contact
     @PostMapping
-    public ResponseEntity<ContactEntity> addContact(@RequestBody ContactEntity contact) {
-        logger.info("Received request to add new contact: {}", contact);
-        ContactEntity savedContact = contactService.addContact(contact);
-        return ResponseEntity.ok(savedContact);
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ContactEntity> updateContact(@PathVariable Long id, @RequestBody ContactEntity contact) {
-        logger.info("Received request to update contact with ID: {}", id);
-        Optional<ContactEntity> updatedContact = contactService.updateContact(id, contact);
-        if (updatedContact.isPresent()) {
-            logger.info("Successfully updated contact with ID: {}", id);
-            return ResponseEntity.ok(updatedContact.get());
+    public ResponseEntity<ContactEntity> addContact(@RequestBody ContactDTO contactDTO) {
+        log.info("Received request to add new contact: {}", contactDTO);
+        ContactEntity savedContact = contactService.saveContact(contactDTO);
+        if (savedContact != null) {
+            return ResponseEntity.ok(savedContact);
         } else {
-            logger.warn("Contact with ID: {} not found for update", id);
+            log.error("Error saving contact: {}", contactDTO);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    // Update contact
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ContactEntity> updateContact(@PathVariable Long id, @RequestBody ContactDTO contactDTO) {
+        log.info("Received request to update contact with ID: {}", id);
+        ContactEntity updatedContact = contactService.updateContact(id, contactDTO);
+        if (updatedContact != null) {
+            return ResponseEntity.ok(updatedContact);
+        } else {
+            log.warn("Contact with ID: {} not found for update", id);
             return ResponseEntity.notFound().build();
         }
     }
-
+    // Delete contact
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
-        logger.info("Received request to delete contact with ID: {}", id);
-        if (contactService.deleteContact(id)) {
-            logger.info("Successfully deleted contact with ID: {}", id);
+        log.info("Received request to delete contact with ID: {}", id);
+        boolean isDeleted = contactService.deleteContact(id);
+        if (isDeleted) {
             return ResponseEntity.noContent().build();
         } else {
-            logger.warn("Contact with ID: {} not found for deletion", id);
+            log.warn("Contact with ID: {} not found for deletion", id);
             return ResponseEntity.notFound().build();
         }
     }

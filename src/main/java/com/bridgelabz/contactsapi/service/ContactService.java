@@ -1,64 +1,81 @@
 package com.bridgelabz.contactsapi.service;
 
-
+import com.bridgelabz.contactsapi.dto.ContactDTO;
 import com.bridgelabz.contactsapi.entity.ContactEntity;
 import com.bridgelabz.contactsapi.repository.ContactRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ContactService {
+    private final ContactRepository contactRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
+    // Constructor injection
+    public ContactService(ContactRepository contactRepository) {
+        this.contactRepository = contactRepository;
+    }
 
-    @Autowired
-    private ContactRepository contactRepository;
-    //get list of contacts
-    public List<ContactEntity> getAllContacts() {
-        logger.info("Fetching all contacts");
-        return contactRepository.findAll();
-    }
-    //grt contact by id
-    public Optional<ContactEntity> getContactById(Long id) {
-        logger.info("Fetching contact with ID: {}", id);
-        return contactRepository.findById(id);
-    }
-    //add contact
-    public ContactEntity addContact(ContactEntity contact) {
-        logger.info("Adding new contact: {}", contact);
+    // Save contact
+    public ContactEntity saveContact(ContactDTO contactDTO) {
+        ContactEntity contact = new ContactEntity();
+        contact.setName(contactDTO.getName());
+        contact.setEmail(contactDTO.getEmail());
+        contact.setPhone(contactDTO.getPhone());
+        contact.setAddress(contactDTO.getAddress());
+        log.info("Saving contact: {}", contactDTO.getName());
         return contactRepository.save(contact);
     }
-    //update contact details
-    public Optional<ContactEntity> updateContact(Long id, ContactEntity newContact) {
-        logger.info("Updating contact with ID: {}", id);
-        Optional<ContactEntity> existingContact = contactRepository.findById(id);
-        if (existingContact.isPresent()) {
-            ContactEntity contact = existingContact.get();
-            contact.setName(newContact.getName());
-            contact.setEmail(newContact.getEmail());
-            contact.setPhone(newContact.getPhone());
-            contact.setAddress(newContact.getAddress());
-            contactRepository.save(contact);
-            logger.info("Updated contact with ID: {}", id);
-            return Optional.of(contact);
-        } else {
-            logger.warn("Contact with ID: {} not found", id);
+
+    // Get list of all contacts
+    public List<ContactEntity> getAllContacts() {
+        log.info("Fetching all contacts");
+        return contactRepository.findAll();
+    }
+
+    // Get contact by ID
+    public Optional<ContactEntity> getContactById(Long id) {
+        try {
+            log.info("Fetching contact with ID: {}", id);
+            return contactRepository.findById(id);
+        } catch (Exception e) {
+            log.error("Error finding contact with ID: {}", id, e);
             return Optional.empty();
         }
     }
-    //delete contact
+
+    // Delete contact by ID
     public boolean deleteContact(Long id) {
-        logger.info("Deleting contact with ID: {}", id);
-        if (contactRepository.existsById(id)) {
+        try {
             contactRepository.deleteById(id);
-            logger.info("Deleted contact with ID: {}", id);
+            log.info("Deleted contact with ID: {}", id);
             return true;
+        } catch (Exception e) {
+            log.error("Error deleting contact with ID: {}", id, e);
+            return false;
         }
-        logger.warn("Contact with ID: {} not found", id);
-        return false;
+    }
+
+    // Update contact
+    public ContactEntity updateContact(Long id, ContactDTO contactDTO) {
+        try {
+            log.info("Updating contact with ID: {}", id);
+            Optional<ContactEntity> optionalContact = contactRepository.findById(id);
+            if (optionalContact.isPresent()) {
+                ContactEntity existingContact = optionalContact.get();
+                existingContact.setName(contactDTO.getName());
+                existingContact.setEmail(contactDTO.getEmail());
+                existingContact.setPhone(contactDTO.getPhone());
+                existingContact.setAddress(contactDTO.getAddress());
+                return contactRepository.save(existingContact);
+            }
+            return null;
+        } catch (RuntimeException e) {
+            log.error("An unexpected error occurred while updating contact with ID: {}", id, e);
+            return null;
+        }
     }
 }
