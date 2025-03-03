@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-//UC_2_Introducing service layer
+//UC_3_Ability for the Services Layer to store the address book data
 @Slf4j
 @Service
 public class ContactService {
