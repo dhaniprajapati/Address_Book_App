@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+//UC_2- Use Lombok Library for Logging
 @Slf4j
 @Service
 public class ContactService {
