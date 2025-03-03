@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-//UC_2- Use Lombok Library for Logging
+//UC_2-Use Lombok Library for Logging
 @Slf4j
 @RestController
 @RequestMapping("/contacts")
