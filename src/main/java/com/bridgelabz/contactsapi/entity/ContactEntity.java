@@ -4,7 +4,6 @@ package com.bridgelabz.contactsapi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-//UC_1_Using lombok
 @Entity
 @Data
 @NoArgsConstructor
